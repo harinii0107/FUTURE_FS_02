@@ -10,7 +10,8 @@ const PORT = process.env.PORT || 5000
 // Middleware - MUST be before routes
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://future-fs-02-wheat-omega.vercel.app' // your exact Vercel URL
+  'https://future-fs-02-flame-six.vercel.app',
+  'https://future-fs-02-mlg5rt4xd-harini-s-projects12.vercel.app' // preview URL
 ];
 
 app.use(cors({
