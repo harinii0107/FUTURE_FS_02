@@ -70,7 +70,13 @@ app.post('/api/auth/login', async (req, res) => {
     res.status(500).json({ message: error.message })
   }
 })
-
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Mini CRM API is running',
+    status: 'live',
+    timestamp: new Date().toISOString()
+  });
+});
 // Route 1: Submit a new lead - this is Step 24
 app.post('/api/leads/submit', async (req, res) => {
   try {
