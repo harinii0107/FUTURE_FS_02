@@ -8,7 +8,10 @@ export default function ContactForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault(); setLoading(true)
-    try { await api.post('/leads/submit', form); setSubmitted(true) }
+    try { 
+      await api.post('/leads', form)
+      setSubmitted(true) 
+    }
     catch { alert('Something went wrong. Please try again.') }
     finally { setLoading(false) }
   }
@@ -51,7 +54,7 @@ export default function ContactForm() {
             <label style={s.label}>Message</label>
             <textarea style={{...s.input, height:100, resize:'vertical'}} value={form.message} onChange={e => setForm({...form, message:e.target.value})} placeholder="Tell us about your project…" />
           </div>
-          <button type="submit" style={s.btn} disabled={loading}>{loading ? 'Sending…' : 'Send message'}</button>
+          <button type="submit" style={s.btn} disabled={loading}>{loading? 'Sending…' : 'Send message'}</button>
         </form>
       </div>
     </div>

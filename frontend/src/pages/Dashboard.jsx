@@ -11,19 +11,18 @@ export default function Dashboard() {
   const [note, setNote] = useState('')
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('all')
-  const [stats, setStats] = useState(null)
   const navigate = useNavigate()
 
   useEffect(() => {
     if (!localStorage.getItem('token')) { navigate('/'); return }
-    fetchLeads(); fetchStats()
+    fetchLeads()
   }, [navigate])
 
   const fetchLeads = async (s=search, f=filter) => {
     try {
       const params = {}
       if (s) params.search = s
-      if (f !== 'all') params.status = f
+      if (f!== 'all') params.status = f
       const res = await api.get('/leads', { params })
       setLeads(res.data)
     } catch (err) {
@@ -31,15 +30,11 @@ export default function Dashboard() {
     }
   }
 
-  const fetchStats = async () => {
-    try { const res = await api.get('/stats'); setStats(res.data) } catch {}
-  }
-
   const logout = () => { localStorage.removeItem('token'); navigate('/') }
 
   const updateStatus = async (id, status) => {
     await api.patch(`/leads/${id}/status`, { status })
-    fetchLeads(); fetchStats()
+    fetchLeads()
     const res = await api.get('/leads')
     setSelected(res.data.find(l => l._id === id))
   }
@@ -56,7 +51,7 @@ export default function Dashboard() {
   const deleteLead = async (id) => {
     if (!window.confirm('Delete this lead?')) return
     await api.delete(`/leads/${id}`)
-    setSelected(null); fetchLeads(); fetchStats()
+    setSelected(null); fetchLeads()
   }
 
   const handleSearch = e => { setSearch(e.target.value); fetchLeads(e.target.value, filter) }
@@ -64,13 +59,12 @@ export default function Dashboard() {
 
   return (
     <div style={s.app}>
-      {/* Sidebar */}
       <aside style={s.sidebar}>
         <div style={s.logo}>
           <span style={s.logoIcon}>◈</span> Mini CRM
         </div>
         <nav style={s.nav}>
-          <div style={{...s.navItem, ...s.navActive}}>
+          <div style={{...s.navItem,...s.navActive}}>
             <span style={s.navIcon}>⊞</span> Leads
           </div>
           <div style={s.navItem} onClick={() => navigate('/contact')} >
@@ -82,34 +76,13 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      {/* Main */}
       <div style={s.main}>
-        {/* Topbar */}
         <div style={s.topbar}>
           <span style={s.topbarTitle}>Lead management</span>
-          <span style={s.topbarSub}>{leads.length} lead{leads.length !== 1 ? 's' : ''}</span>
+          <span style={s.topbarSub}>{leads.length} lead{leads.length!== 1? 's' : ''}</span>
         </div>
 
         <div style={s.content}>
-          {/* Stats */}
-          {stats && (
-            <div style={s.statsRow}>
-              {[
-                { label:'Total leads', val:stats.total, color:'#534AB7' },
-                { label:'New', val:stats.new, color:'#185FA5' },
-                { label:'Contacted', val:stats.contacted, color:'#BA7517' },
-                { label:'Converted', val:stats.converted, color:'#3B6D11' },
-                { label:'Lost', val:stats.lost, color:'#A32D2D' },
-              ].map(({ label, val, color }) => (
-                <div key={label} style={s.stat}>
-                  <div style={{ ...s.statNum, color }}>{val}</div>
-                  <div style={s.statLabel}>{label}</div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Toolbar */}
           <div style={s.toolbar}>
             <input
               style={s.search}
@@ -122,7 +95,7 @@ export default function Dashboard() {
                 <button
                   key={f}
                   onClick={() => handleFilter(f)}
-                  style={{ ...s.filterBtn, ...(filter === f ? s.filterActive : {}) }}
+                  style={{...s.filterBtn,...(filter === f? s.filterActive : {}) }}
                 >
                   {f}
                 </button>
@@ -130,21 +103,19 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Grid */}
           <div style={s.grid}>
-            {/* Lead List */}
             <div style={s.listCol}>
-              {leads.length === 0 ? (
+              {leads.length === 0? (
                 <div style={s.empty}>No leads found.</div>
               ) : leads.map(lead => (
                 <div
                   key={lead._id}
                   onClick={() => setSelected(lead)}
-                  style={{ ...s.card, ...(selected?._id === lead._id ? s.cardSelected : {}) }}
+                  style={{...s.card,...(selected?._id === lead._id? s.cardSelected : {}) }}
                 >
                   <div style={s.cardTop}>
                     <span style={s.cardName}>{lead.name}</span>
-                    <span style={{ ...s.badge, background: statusBg[lead.status], color: statusColor[lead.status] }}>
+                    <span style={{...s.badge, background: statusBg[lead.status], color: statusColor[lead.status] }}>
                       {lead.status}
                     </span>
                   </div>
@@ -157,9 +128,8 @@ export default function Dashboard() {
               ))}
             </div>
 
-            {/* Detail Panel */}
             <div style={s.detailCol}>
-              {!selected ? (
+              {!selected? (
                 <div style={s.emptyDetail}>
                   <div style={s.emptyIcon}>⊡</div>
                   <p>Select a lead to view details</p>
@@ -172,7 +142,7 @@ export default function Dashboard() {
                       <h2 style={s.detailName}>{selected.name}</h2>
                       <p style={s.detailSub}>{selected.source}</p>
                     </div>
-                    <span style={{ ...s.badge, background: statusBg[selected.status], color: statusColor[selected.status], marginLeft:'auto' }}>
+                    <span style={{...s.badge, background: statusBg[selected.status], color: statusColor[selected.status], marginLeft:'auto' }}>
                       {selected.status}
                     </span>
                   </div>
@@ -190,7 +160,7 @@ export default function Dashboard() {
                         <button
                           key={st}
                           onClick={() => updateStatus(selected._id, st)}
-                          style={{ ...s.statusBtn, background: selected.status === st ? statusBg[st] : 'transparent', color: selected.status === st ? statusColor[st] : '#888', borderColor: selected.status === st ? statusColor[st] : '#ddd' }}
+                          style={{...s.statusBtn, background: selected.status === st? statusBg[st] : 'transparent', color: selected.status === st? statusColor[st] : '#888', borderColor: selected.status === st? statusColor[st] : '#ddd' }}
                         >
                           {st}
                         </button>
@@ -244,10 +214,6 @@ const s = {
   topbarTitle:{ fontSize:15, fontWeight:600 },
   topbarSub:{ fontSize:13, color:'#999' },
   content:{ padding:'1.5rem', display:'flex', flexDirection:'column', gap:'1rem' },
-  statsRow:{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:10 },
-  stat:{ background:'#fff', border:'1px solid #f0f0f0', borderRadius:10, padding:'1rem', textAlign:'center' },
-  statNum:{ fontSize:28, fontWeight:600, lineHeight:1 },
-  statLabel:{ fontSize:11, color:'#999', marginTop:6, textTransform:'uppercase', letterSpacing:'0.5px' },
   toolbar:{ display:'flex', gap:10, alignItems:'center', flexWrap:'wrap' },
   search:{ flex:1, minWidth:200, padding:'8px 12px', border:'1px solid #eee', borderRadius:8, background:'#fff', fontSize:13, outline:'none' },
   filters:{ display:'flex', gap:6 },
