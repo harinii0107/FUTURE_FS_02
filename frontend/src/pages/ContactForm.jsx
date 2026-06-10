@@ -9,7 +9,7 @@ export default function ContactForm() {
   const handleSubmit = async (e) => {
     e.preventDefault(); setLoading(true)
     try { 
-      await api.post('/leads', form)
+      await api.post('/leads/submit', form)
       setSubmitted(true) 
     }
     catch { alert('Something went wrong. Please try again.') }
