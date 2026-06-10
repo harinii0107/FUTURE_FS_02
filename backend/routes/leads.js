@@ -1,65 +1,97 @@
 
-const router = require('express').Router();
-const Lead = require('../models/Lead');
-const protect = (req, res, next) => {
-  next();
-};
+const express = require('express')
+const router = express.Router()
+const Lead = require('../models/Lead')
+const auth = require('../middleware/auth')
 
-// PUBLIC: Submit a lead (from contact form)
-router.post('/submit', async (req, res) => {
+// GET /api/leads - Get all leads. Protected, only for logged-in dashboard
+router.get('/leads', auth, async (req, res) => {
   try {
-    const lead = new Lead(req.body);
-    await lead.save();
-    res.status(201).json({ message: '✅ Lead submitted!' });
+    const { search, status } = req.query
+    let query = {}
+    
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { source: { $regex: search, $options: 'i' } }
+      ]
+    }
+    
+    if (status && status !== 'all') {
+      query.status = status
+    }
+    
+    const leads = await Lead.find(query).sort({ createdAt: -1 })
+    res.json(leads)
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: err.message })
   }
-});
+})
 
-// PROTECTED: Get all leads
-router.get('/', protect, async (req, res) => {
+// POST /api/leads - Create lead from contact form. PUBLIC, no auth needed
+router.post('/leads', async (req, res) => {
   try {
-    const leads = await Lead.find().sort({ createdAt: -1 });
-    res.json(leads);
+    const { name, email, phone, source, message } = req.body
+    
+    if (!name || !email) {
+      return res.status(400).json({ error: 'Name and email are required' })
+    }
+
+    const lead = new Lead({
+      name,
+      email,
+      phone: phone || '',
+      source: source || 'Website',
+      message: message || '',
+      status: 'new'
+    })
+    
+    await lead.save()
+    res.status(201).json(lead)
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: err.message })
   }
-});
+})
 
-// PROTECTED: Update lead status
-router.patch('/:id/status', protect, async (req, res) => {
+// PATCH /api/leads/:id/status - Update status. Protected
+router.patch('/leads/:id/status', auth, async (req, res) => {
   try {
+    const { status } = req.body
     const lead = await Lead.findByIdAndUpdate(
       req.params.id, 
-      { status: req.body.status }, 
+      { status }, 
       { new: true }
-    );
-    res.json(lead);
+    )
+    res.json(lead)
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: err.message })
   }
-});
+})
 
-// PROTECTED: Add a follow-up note
-router.post('/:id/notes', protect, async (req, res) => {
+// POST /api/leads/:id/notes - Add note. Protected
+router.post('/leads/:id/notes', auth, async (req, res) => {
   try {
-    const lead = await Lead.findById(req.params.id);
-    lead.notes.push({ text: req.body.text });
-    await lead.save();
-    res.json(lead);
+    const { text } = req.body
+    const lead = await Lead.findByIdAndUpdate(
+      req.params.id,
+      { $push: { notes: { text, createdAt: new Date() } } },
+      { new: true }
+    )
+    res.json(lead)
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: err.message })
   }
-});
+})
 
-// PROTECTED: Delete a lead
-router.delete('/:id', protect, async (req, res) => {
+// DELETE /api/leads/:id - Delete lead. Protected
+router.delete('/leads/:id', auth, async (req, res) => {
   try {
-    await Lead.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Lead deleted' });
+    await Lead.findByIdAndDelete(req.params.id)
+    res.json({ message: 'Lead deleted' })
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: err.message })
   }
-});
+})
 
-module.exports = router;
+module.exports = router
