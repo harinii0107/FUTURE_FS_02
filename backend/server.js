@@ -12,6 +12,7 @@ const allowedOrigins = [
   'http://localhost:5173',
   'https://future-fs-02-flame-six.vercel.app',
   'https://future-fs-02-mlg5rt4xd-harini-s-projects12.vercel.app'
+  'https://future-fs-02-d1yz2bbgb-harini-s-projects12.vercel.app'
 ];
 
 app.use(cors({
