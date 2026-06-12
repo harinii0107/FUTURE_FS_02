@@ -7,9 +7,10 @@ A full-stack CRM to capture leads from contact forms, track status, and manage f
 ---
 
 ## 🌐 Live Demo
-🔗 [Admin Dashboard](#) · [Contact Form](#/contact)
+🔗 [(https://future-fs-02-flame-six.vercel.app/)](#) · 
+[https://future-fs-02-flame-six.vercel.app/contact](#/contact)
 
-**Admin login:** `admin` / `Admin@2024`
+**Admin login:** `harini` / `harini123`
 
 ---
 
